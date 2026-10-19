@@ -1,433 +1,813 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Space Explorer</title>
-
-    <style>
-
-        body {
-            margin: 0;
-            background: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        h1 {
-            margin-top: 20px;
-            position: relative;
-            z-index: 20;
-        }
-
-
-        /* STARS */
-
-        #stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s infinite alternate;
-        }
-
-        @keyframes twinkle {
-
-            from {
-                opacity: 0.2;
-            }
-
-            to {
-                opacity: 1;
-            }
-
-        }
-
-
-        /* BUTTONS */
-
-        .planet-buttons {
-            position: relative;
-            z-index: 30;
-            margin: 10px;
-        }
-
-        button {
-            padding: 10px 18px;
-            margin: 5px;
-            font-size: 16px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-
-        /* INFORMATION PANEL */
-
-        #info-panel {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-
-            width: 320px;
-            padding: 15px;
-
-            background: rgba(20, 20, 30, 0.95);
-
-            border: 2px solid white;
-            border-radius: 15px;
-
-            z-index: 30;
-        }
-
-        #info-panel h2 {
-            margin: 5px;
-        }
-
-        #info-panel p {
-            margin: 10px;
-        }
-
-
-        /* SPACE */
-
-        .space {
-            position: relative;
-            width: 100vw;
-            height: 80vh;
-        }
-
-
-        /* SUN */
-
-        .sun {
-            position: absolute;
-
-            width: 100px;
-            height: 100px;
-
-            background: orange;
-
-            border-radius: 50%;
-
-            top: 40%;
-            left: 45%;
-
-            box-shadow: 0 0 50px orange;
-
-            z-index: 5;
-        }
-
-
-        /* ORBITS */
-
-        .orbit {
-            position: absolute;
-
-            border: 1px solid rgba(255,255,255,0.2);
-
-            border-radius: 50%;
-
-            top: 45%;
-            left: 50%;
-
-            transform: translate(-50%, -50%);
-
-            animation: orbit 10s linear infinite;
-
-            z-index: 4;
-        }
-
-        .earth-orbit {
-            width: 250px;
-            height: 250px;
-        }
-
-        .mars-orbit {
-            width: 380px;
-            height: 380px;
-            animation-duration: 16s;
-        }
-
-        .jupiter-orbit {
-            width: 540px;
-            height: 540px;
-            animation-duration: 25s;
-        }
-
-
-        /* PLANETS */
-
-        .planet {
-            position: absolute;
-
-            border-radius: 50%;
-
-            top: -15px;
-            left: 50%;
-
-            transform: translateX(-50%);
-
-            cursor: pointer;
-
-            z-index: 10;
-        }
-
-        .earth {
-            width: 35px;
-            height: 35px;
-
-            background: #3498db;
-
-            box-shadow: 0 0 15px #3498db;
-        }
-
-        .mars {
-            width: 28px;
-            height: 28px;
-
-            background: #e74c3c;
-
-            box-shadow: 0 0 15px #e74c3c;
-        }
-
-        .jupiter {
-            width: 65px;
-            height: 65px;
-
-            background: #c49a6c;
-
-            box-shadow: 0 0 15px #c49a6c;
-        }
-
-
-        /* ORBIT ANIMATION */
-
-        @keyframes orbit {
-
-            from {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            to {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
-
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071126">
+<title>Space Explorer | Solar System</title>
+
+<style>
+:root {
+    --space: #071126;
+    --orbit: rgba(133, 169, 230, 0.22);
+    --text: #f4f7ff;
+    --muted: #b8c8e8;
+    --blue: #69a7ff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    background: radial-gradient(
+        ellipse at 50% 45%,
+        #172b52 0%,
+        #0b1731 48%,
+        #030814 100%
+    );
+}
+
+.stars,
+.stars::before,
+.stars::after {
+    position: fixed;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+}
+
+.stars {
+    z-index: 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(1px 1px at 90px 120px, #fff, transparent),
+        radial-gradient(1px 1px at 160px 70px, #9cc8ff, transparent),
+        radial-gradient(2px 2px at 230px 180px, #fff, transparent),
+        radial-gradient(1px 1px at 310px 40px, #fff, transparent);
+    background-size: 340px 240px;
+    animation: twinkle 5s ease-in-out infinite alternate;
+}
+
+.stars::before {
+    background-image:
+        radial-gradient(1px 1px at 70px 80px, #fff, transparent),
+        radial-gradient(2px 2px at 190px 150px, #b8d8ff, transparent),
+        radial-gradient(1px 1px at 280px 210px, #fff, transparent);
+    background-size: 390px 290px;
+}
+
+@keyframes twinkle {
+    from { opacity: .45; }
+    to { opacity: 1; }
+}
+
+.page {
+    position: relative;
+    z-index: 1;
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: 24px 20px 50px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 48px);
+    letter-spacing: -1px;
+}
+
+header p {
+    color: var(--muted);
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+.solar-system {
+    position: relative;
+    width: min(94vw, 850px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+    max-height: 850px;
+}
+
+/* Sun */
+.sun {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(42px, 6vw, 72px);
+    height: clamp(42px, 6vw, 72px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 2;
+    background: radial-gradient(
+        circle at 35% 30%,
+        #fff7b5 0%,
+        #ffd75a 28%,
+        #ff9e20 65%,
+        #f66b12 100%
+    );
+    box-shadow:
+        0 0 22px #ffb32f,
+        0 0 55px rgba(255, 153, 26, .55),
+        0 0 100px rgba(255, 133, 21, .2);
+}
+
+/* Planet orbits */
+.orbit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 1px solid var(--orbit);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.orbit-path {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: orbit-spin var(--duration) linear infinite;
+}
+
+@keyframes orbit-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Planets */
+.planet {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -50%);
+    border: 0;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: filter .2s ease, scale .2s ease;
+}
+
+.planet:hover,
+.planet:focus-visible {
+    filter: brightness(1.25);
+    scale: 1.12;
+    outline: 2px solid rgba(255,255,255,.7);
+    outline-offset: 4px;
+}
+
+.mercury {
+    width: 13px;
+    height: 13px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_mercury.jpg");
+    box-shadow: 0 0 8px #b9b4aa;
+}
+
+.venus {
+    width: 19px;
+    height: 19px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_venus_surface.jpg");
+    box-shadow: 0 0 10px #d9a35b;
+}
+
+.earth {
+    width: 23px;
+    height: 23px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg");
+    box-shadow: 0 0 12px #5caaff;
+}
+
+.mars {
+    width: 19px;
+    height: 19px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_mars.jpg");
+    box-shadow: 0 0 10px #e77749;
+}
+
+.jupiter {
+    width: 39px;
+    height: 39px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg");
+    box-shadow: 0 0 12px #d4ad85;
+}
+
+/* Saturn and its rings */
+.saturn-system {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.saturn-body {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 32px;
+    height: 32px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 2;
+    pointer-events: auto;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    background-color: #c9b18a;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_saturn.jpg");
+    background-size: cover;
+    background-position: center;
+    box-shadow: inset -6px -3px 8px #261b1299, 0 0 9px #d7bd8b55;
+}
+
+.saturn-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 68px;
+    height: 27px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotate(-20deg);
+    background: repeating-linear-gradient(
+        180deg,
+        #8c704d 0%,
+        #f0dfbb 13%,
+        #b79a6c 25%,
+        #e4d0a5 39%,
+        #927650 52%,
+        #e9d9b6 66%,
+        #a78b60 80%,
+        #e6d4ad 100%
+    );
+    -webkit-mask: radial-gradient(
+        ellipse,
+        transparent 0 34%,
+        #000 39% 62%,
+        transparent 67%
+    );
+    mask: radial-gradient(
+        ellipse,
+        transparent 0 34%,
+        #000 39% 62%,
+        transparent 67%
+    );
+    pointer-events: none;
+}
+
+.saturn-ring-back {
+    z-index: 1;
+    clip-path: inset(0 0 48% 0);
+}
+
+.saturn-ring-front {
+    z-index: 3;
+    clip-path: inset(48% 0 0 0);
+}
+
+.uranus {
+    width: 27px;
+    height: 27px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_uranus.jpg");
+    box-shadow: 0 0 10px #8be4e755;
+}
+
+.neptune {
+    width: 25px;
+    height: 25px;
+    background-image: url("https://www.solarsystemscope.com/textures/download/2k_neptune.jpg");
+    box-shadow: 0 0 10px #488dff88;
+}
+
+/* ASTEROID BELT: between Mars and Jupiter */
+.asteroid-belt {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 51%;
+    height: 51%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.asteroid-field {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: orbit-spin 32s linear infinite;
+}
+
+.asteroid {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size, 4px);
+    height: var(--size, 4px);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--rock, #b7a184);
+    box-shadow: 0 0 4px var(--rock, #b7a184);
+    opacity: .9;
+}
+
+
+@keyframes asteroid-twinkle {
+    from { opacity: .45; }
+    to { opacity: 1; }
+}
+
+.asteroid-label {
+    position: absolute;
+    left: 50%;
+    top: -2%;
+    transform: translate(-50%, -100%);
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: #e5d2b5;
+    background: #071126;
+    border: 1px solid rgba(190, 166, 132, .5);
+    font-size: 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    z-index: 3;
+}
+
+/* Orbit sizes */
+.orbit-1 { width: 15%; height: 15%; }
+.orbit-2 { width: 25%; height: 25%; }
+.orbit-3 { width: 35%; height: 35%; }
+.orbit-4 { width: 45%; height: 45%; }
+.orbit-5 { width: 57%; height: 57%; }
+.orbit-6 { width: 69%; height: 69%; }
+.orbit-7 { width: 81%; height: 81%; }
+.orbit-8 { width: 94%; height: 94%; }
+
+/* Information panel */
+.info-panel {
+    width: min(600px, 100%);
+    margin: 18px auto 0;
+    padding: 22px;
+    border: 1px solid rgba(150, 187, 255, .2);
+    border-radius: 18px;
+    background: rgba(10, 23, 48, .8);
+    box-shadow: 0 15px 45px #0003;
+    backdrop-filter: blur(12px);
+    text-align: left;
+}
+
+.info-panel h2 {
+    margin: 0 0 10px;
+    font-size: 25px;
+    color: #fff;
+}
+
+.info-panel p {
+    margin: 0;
+    line-height: 1.65;
+    color: #b8c8e8;
+}
+
+.planet-facts {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    display: grid;
+    gap: 10px;
+}
+
+.planet-facts li {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(88, 128, 195, .12);
+    border: 1px solid rgba(157, 190, 255, .14);
+    color: #dce8ff;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.planet-facts li strong {
+    color: #8fc1ff;
+}
+
+/* Navigation buttons */
+.planet-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 18px auto 0;
+}
+
+.planet-buttons button {
+    color: #eaf2ff;
+    background: rgba(53, 83, 135, .4);
+    border: 1px solid rgba(157, 190, 255, .22);
+    border-radius: 999px;
+    padding: 9px 13px;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.planet-buttons button:hover,
+.planet-buttons button:focus-visible {
+    background: rgba(76, 132, 222, .5);
+    outline: 1px solid var(--blue);
+}
+
+.hint {
+    text-align: center;
+    color: #91a7cc;
+    font-size: 13px;
+    margin-top: 14px;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+    .page {
+        padding: 20px 12px 35px;
+    }
+
+    .solar-system {
+        width: 96vw;
+    }
+
+    .info-panel {
+        padding: 18px;
+    }
+
+    .planet-buttons {
+        gap: 6px;
+    }
+
+    .planet-buttons button {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .stars,
+    .orbit-path,
+    .asteroid-field,
+    .asteroid {
+        animation: none;
+    }
+}
+</style>
 </head>
 
-
 <body>
+<div class="stars" aria-hidden="true"></div>
 
-    <!-- STARS -->
+<main class="page">
+    <header>
+        <h1>🌌 Space Explorer</h1>
+        <p>Explore all eight planets and the Asteroid Belt</p>
+    </header>
 
-    <div id="stars"></div>
+    <section class="solar-system" aria-label="Interactive solar system">
+        <div class="sun" title="Sun" aria-label="Sun"></div>
 
-
-    <h1>🌌 Space Explorer</h1>
-
-
-    <!-- PLANET BUTTONS -->
-
-    <div class="planet-buttons">
-
-        <button id="earth-button">
-            🌍 Earth
-        </button>
-
-        <button id="mars-button">
-            🔴 Mars
-        </button>
-
-        <button id="jupiter-button">
-            🪐 Jupiter
-        </button>
-
-    </div>
-
-
-    <!-- INFORMATION -->
-
-    <div id="info-panel">
-
-        <h2 id="planet-name">
-            Choose a Planet
-        </h2>
-
-        <p id="planet-info">
-            Click a planet button to learn more.
-        </p>
-
-    </div>
-
-
-    <!-- SPACE -->
-
-    <div class="space">
-
-        <div class="sun"></div>
-
-
-        <div class="orbit earth-orbit">
-
-            <div class="planet earth"></div>
-
+        <div class="orbit orbit-1">
+            <div class="orbit-path" style="--duration: 5s">
+                <button class="planet mercury" data-planet="mercury" aria-label="Explore Mercury"></button>
+            </div>
         </div>
 
-
-        <div class="orbit mars-orbit">
-
-            <div class="planet mars"></div>
-
+        <div class="orbit orbit-2">
+            <div class="orbit-path" style="--duration: 8s">
+                <button class="planet venus" data-planet="venus" aria-label="Explore Venus"></button>
+            </div>
         </div>
 
-
-        <div class="orbit jupiter-orbit">
-
-            <div class="planet jupiter"></div>
-
+        <div class="orbit orbit-3">
+            <div class="orbit-path" style="--duration: 12s">
+                <button class="planet earth" data-planet="earth" aria-label="Explore Earth"></button>
+            </div>
         </div>
 
-    </div>
+        <div class="orbit orbit-4">
+            <div class="orbit-path" style="--duration: 16s">
+                <button class="planet mars" data-planet="mars" aria-label="Explore Mars"></button>
+            </div>
+        </div>
+
+        <!-- Asteroid Belt: between Mars and Jupiter -->
+        <div class="asteroid-belt" aria-label="Asteroid Belt">
+            <span class="asteroid-label">ASTEROID BELT</span>
+
+            <div class="asteroid-field">
+                
+<div class="asteroid-field" id="asteroidField"></div>
+        </div>
+        </div>
+
+        <div class="orbit orbit-5">
+            <div class="orbit-path" style="--duration: 22s">
+                <button class="planet jupiter" data-planet="jupiter" aria-label="Explore Jupiter"></button>
+            </div>
+        </div>
+
+        <div class="orbit orbit-6">
+            <div class="orbit-path" style="--duration: 30s">
+                <div class="saturn-system">
+                    <span class="saturn-ring saturn-ring-back"></span>
+                    <button class="saturn-body" data-planet="saturn" aria-label="Explore Saturn"></button>
+                    <span class="saturn-ring saturn-ring-front"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="orbit orbit-7">
+            <div class="orbit-path" style="--duration: 38s">
+                <button class="planet uranus" data-planet="uranus" aria-label="Explore Uranus"></button>
+            </div>
+        </div>
+
+        <div class="orbit orbit-8">
+            <div class="orbit-path" style="--duration: 46s">
+                <button class="planet neptune" data-planet="neptune" aria-label="Explore Neptune"></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-panel" aria-live="polite">
+        <h2 id="planetName">Welcome, Explorer! 🚀</h2>
+        <p id="planetIntro">Select any planet or the Asteroid Belt to explore its scientific facts.</p>
+        <ul id="planetFacts" class="planet-facts"></ul>
+    </section>
+
+    <nav class="planet-buttons" aria-label="Choose a planet or region">
+        <button data-select="mercury">Mercury</button>
+        <button data-select="venus">Venus</button>
+        <button data-select="earth">Earth</button>
+        <button data-select="mars">Mars</button>
+        <button data-select="asteroid-belt">☄️ Asteroid Belt</button>
+        <button data-select="jupiter">Jupiter</button>
+        <button data-select="saturn">Saturn</button>
+        <button data-select="uranus">Uranus</button>
+        <button data-select="neptune">Neptune</button>
+    </nav>
+
+    <div class="hint">Select a planet or the Asteroid Belt to discover more</div>
+</main>
+
+<script>
+const planetDetails = {
+    mercury: {
+        name: "☿ Mercury",
+        intro: "The smallest planet and the closest to the Sun.",
+        facts: [
+            ["Position", "1st planet from the Sun."],
+            ["Diameter", "About 4,880 km — roughly 38% of Earth's diameter."],
+            ["Distance", "Average distance from the Sun: 57.9 million km."],
+            ["Surface", "A rocky world covered with impact craters, somewhat like Earth's Moon."],
+            ["Atmosphere", "Has an extremely thin exosphere, not a thick atmosphere like Earth."],
+            ["Temperature", "Daytime can reach about 430°C; nighttime can fall to around -180°C."],
+            ["Moons and rings", "No natural moons and no rings."],
+            ["Year", "Completes one orbit around the Sun in about 88 Earth days."],
+            ["Interesting fact", "Despite being closest to the Sun, Mercury is not the hottest planet."]
+        ]
+    },
+
+    venus: {
+        name: "♀ Venus",
+        intro: "A rocky planet with a thick atmosphere and extreme heat.",
+        facts: [
+            ["Position", "2nd planet from the Sun."],
+            ["Diameter", "About 12,104 km, slightly smaller than Earth."],
+            ["Distance", "Average distance from the Sun: 108.2 million km."],
+            ["Surface", "Contains volcanic plains, mountains and large volcanic structures."],
+            ["Atmosphere", "Mostly carbon dioxide, with thick clouds containing sulfuric acid."],
+            ["Temperature", "Average surface temperature is about 465°C."],
+            ["Pressure", "Surface atmospheric pressure is roughly 92 times Earth's sea-level pressure."],
+            ["Moons and rings", "No known natural moons and no rings."],
+            ["Rotation", "Rotates very slowly and in the opposite direction to most planets."],
+            ["Interesting fact", "Venus is the hottest planet because its dense atmosphere traps heat."]
+        ]
+    },
+
+    earth: {
+        name: "🌍 Earth",
+        intro: "Our home planet and the only world currently known to support life.",
+        facts: [
+            ["Position", "3rd planet from the Sun."],
+            ["Diameter", "About 12,742 km."],
+            ["Distance", "Average distance from the Sun: about 149.6 million km."],
+            ["Surface", "Around 71% of Earth's surface is covered by water."],
+            ["Atmosphere", "Mostly nitrogen and oxygen, which support the environment we know."],
+            ["Temperature", "Global conditions vary greatly by region and season."],
+            ["Water", "Earth has abundant stable liquid water on its surface."],
+            ["Moon", "Earth has one natural moon."],
+            ["Magnetic field", "Its magnetic field helps shield the planet from charged particles from space."],
+            ["Year", "One orbit around the Sun takes about 365.25 days."],
+            ["Interesting fact", "Earth is the only planet where life is confirmed to exist."]
+        ]
+    },
+
+    mars: {
+        name: "♂ Mars",
+        intro: "The Red Planet, a rocky world with ancient landscapes and polar ice.",
+        facts: [
+            ["Position", "4th planet from the Sun."],
+            ["Diameter", "About 6,792 km, roughly half Earth's diameter."],
+            ["Distance", "Average distance from the Sun: 227.9 million km."],
+            ["Surface", "Its reddish colour comes largely from iron-rich minerals in its dust."],
+            ["Atmosphere", "Thin and composed mostly of carbon dioxide."],
+            ["Temperature", "Average temperature is around -65°C, with substantial local variation."],
+            ["Landforms", "Home to Olympus Mons, one of the largest volcanoes known in the Solar System."],
+            ["Moons", "Two small moons: Phobos and Deimos."],
+            ["Water", "Water ice exists today; evidence indicates liquid water flowed on ancient Mars."],
+            ["Exploration", "Rovers and orbiters study its geology, climate and potential past habitability."],
+            ["Interesting fact", "Mars has a canyon system called Valles Marineris that stretches thousands of kilometres."]
+        ]
+    },
+
+    "asteroid-belt": {
+        name: "☄️ Asteroid Belt",
+        intro: "A vast region of rocky and metallic objects orbiting the Sun between Mars and Jupiter.",
+        facts: [
+            ["Location", "Mainly between the orbits of Mars and Jupiter."],
+            ["Distance", "The main belt spans roughly 2.1 to 3.3 astronomical units from the Sun."],
+            ["Composition", "Contains rocky fragments, metals and carbon-rich material."],
+            ["Size", "Objects range from tiny dust grains to dwarf planets such as Ceres."],
+            ["Ceres", "Ceres is the largest object in the main asteroid belt and is classified as a dwarf planet."],
+            ["Formation", "Asteroids are leftover building blocks from the early Solar System, about 4.6 billion years ago."],
+            ["Gravity", "Jupiter's gravity strongly influenced the belt's formation and orbital structure."],
+            ["Number", "Millions of asteroids are estimated to inhabit the main belt."],
+            ["Space between rocks", "Asteroids are widely separated; the belt is not a tightly packed wall of rocks."],
+            ["Exploration", "NASA's Dawn spacecraft visited Vesta and orbited Ceres."],
+            ["Interesting fact", "The total mass of the main asteroid belt is much less than the Moon's mass."]
+        ]
+    },
+
+    jupiter: {
+        name: "♃ Jupiter",
+        intro: "The largest planet in the Solar System, known for enormous storms.",
+        facts: [
+            ["Position", "5th planet from the Sun."],
+            ["Diameter", "About 143,000 km — around 11 times Earth's diameter."],
+            ["Distance", "Average distance from the Sun: 778.3 million km."],
+            ["Planet type", "A gas giant made mostly of hydrogen and helium."],
+            ["Surface", "It has no solid surface like Earth; clouds cover its deep atmosphere."],
+            ["Storms", "The Great Red Spot is a gigantic storm that has lasted for centuries."],
+            ["Day", "Jupiter rotates in roughly 10 hours, making its day very short."],
+            ["Year", "One orbit around the Sun takes nearly 11.9 Earth years."],
+            ["Moons", "Has many known moons, including Io, Europa, Ganymede and Callisto."],
+            ["Rings", "Has a faint ring system that is difficult to see."],
+            ["Interesting fact", "Ganymede, one of Jupiter's moons, is larger than the planet Mercury."]
+        ]
+    },
+
+    saturn: {
+        name: "🪐 Saturn",
+        intro: "A gas giant famous for its spectacular system of icy rings.",
+        facts: [
+            ["Position", "6th planet from the Sun."],
+            ["Diameter", "About 120,536 km across at its equator."],
+            ["Distance", "Average distance from the Sun: about 1.43 billion km."],
+            ["Planet type", "A gas giant made mostly of hydrogen and helium."],
+            ["Rings", "Its rings contain countless pieces of water ice, rocky material and dust."],
+            ["Ring structure", "The rings are divided into broad sections and gaps, including the prominent Cassini Division."],
+            ["Atmosphere", "Features bands of clouds, powerful winds and large storms."],
+            ["Density", "Saturn's average density is lower than water's, though it has no ordinary ocean in which to float."],
+            ["Moons", "Has many moons, including Titan and Enceladus."],
+            ["Titan", "Titan has a thick atmosphere and lakes and seas of liquid methane and ethane."],
+            ["Enceladus", "This icy moon sprays water-rich material into space and has a subsurface ocean."],
+            ["Year", "Saturn takes about 29.5 Earth years to orbit the Sun."],
+            ["Interesting fact", "The rings look wide but are extremely thin compared with their overall width."]
+        ]
+    },
+
+    uranus: {
+        name: "♅ Uranus",
+        intro: "A pale blue-green ice giant that rotates on its side.",
+        facts: [
+            ["Position", "7th planet from the Sun."],
+            ["Diameter", "About 51,000 km across at its equator."],
+            ["Distance", "Average distance from the Sun: 2.87 billion km."],
+            ["Planet type", "An ice giant with a hydrogen-helium atmosphere and methane."],
+            ["Colour", "Methane absorbs some red light, helping give Uranus its blue-green appearance."],
+            ["Interior", "Contains hot, dense material including water, ammonia and methane under high pressure."],
+            ["Temperature", "Its upper atmosphere can reach around -224°C, among the coldest measured planetary atmospheres."],
+            ["Rotation", "Its axis is tilted by about 98 degrees, so it effectively rotates on its side."],
+            ["Moons", "Has 27 known moons, many named after characters from literature."],
+            ["Rings", "Has a dark, narrow ring system."],
+            ["Year", "One orbit around the Sun takes about 84 Earth years."],
+            ["Interesting fact", "Its extreme axial tilt produces unusual, long-lasting seasonal patterns."]
+        ]
+    },
+
+    neptune: {
+        name: "♆ Neptune",
+        intro: "A distant ice giant with deep-blue colours and powerful winds.",
+        facts: [
+            ["Position", "8th and most distant planet from the Sun."],
+            ["Diameter", "About 49,244 km."],
+            ["Distance", "Average distance from the Sun: about 4.5 billion km."],
+            ["Planet type", "An ice giant composed mainly of hydrogen, helium and other materials."],
+            ["Colour", "Methane contributes to its blue appearance, alongside other atmospheric effects."],
+            ["Atmosphere", "Contains hydrogen, helium and methane, with clouds and large weather systems."],
+            ["Temperature", "Its upper atmosphere averages roughly -200°C."],
+            ["Winds", "Neptune experiences some of the fastest winds measured on a planet."],
+            ["Moons", "Has 14 known moons, including Triton."],
+            ["Triton", "Triton travels around Neptune in a backward orbit and is extremely cold."],
+            ["Rings", "Has faint rings and arcs of material."],
+            ["Year", "One orbit around the Sun takes about 165 Earth years."],
+            ["Exploration", "Voyager 2 flew past Neptune in 1989; it remains the only spacecraft to have visited closely."],
+            ["Interesting fact", "Sunlight at Neptune is far weaker than it is at Earth."]
+        ]
+    }
+};
+
+const asteroidField = document.getElementById("asteroidField");
+
+for (let i = 0; i < 80; i++) {
+    const asteroid = document.createElement("span");
+    asteroid.className = "asteroid";
+
+    const angle = (i / 80) * Math.PI * 2;
+    const radius = 43 + Math.random() * 7;
+
+    const x = 50 + Math.cos(angle) * radius;
+    const y = 50 + Math.sin(angle) * radius;
+
+    const size = 2 + Math.random() * 3;
+
+    const rockColors = [
+        "#d4c0a5",
+        "#a99a88",
+        "#827d79",
+        "#c1ad91",
+        "#eee0c8"
+    ];
+
+    asteroid.style.setProperty("--x", `${x}%`);
+    asteroid.style.setProperty("--y", `${y}%`);
+    asteroid.style.setProperty("--size", `${size}px`);
+    asteroid.style.setProperty(
+        "--rock",
+        rockColors[Math.floor(Math.random() * rockColors.length)]
+    );
+
+    asteroidField.appendChild(asteroid);
+}
 
 
-    <script>
+function showPlanet(key) {
+    const planet = planetDetails[key];
 
-        /* CREATE STARS */
+    if (!planet) return;
 
-        const stars =
-            document.getElementById("stars");
+    document.getElementById("planetName").textContent = planet.name;
+    document.getElementById("planetIntro").textContent = planet.intro;
 
-        for (let i = 0; i < 200; i++) {
+    const factsList = document.getElementById("planetFacts");
+    factsList.replaceChildren();
 
-            const star =
-                document.createElement("div");
+    planet.facts.forEach(([label, description]) => {
+        const item = document.createElement("li");
+        const title = document.createElement("strong");
 
-            star.className = "star";
+        title.textContent = label + ": ";
+        item.appendChild(title);
+        item.appendChild(document.createTextNode(description));
+        factsList.appendChild(item);
+    });
+}
 
-            star.style.left =
-                Math.random() * 100 + "%";
+document.querySelectorAll("[data-planet]").forEach(button => {
+    button.addEventListener("click", () => {
+        showPlanet(button.dataset.planet);
+    });
+});
 
-            star.style.top =
-                Math.random() * 100 + "%";
-
-            star.style.animationDelay =
-                Math.random() * 2 + "s";
-
-            stars.appendChild(star);
-
-        }
-
-
-        /* INFORMATION PANEL */
-
-        const planetName =
-            document.getElementById("planet-name");
-
-        const planetInfo =
-            document.getElementById("planet-info");
-
-
-        /* EARTH */
-
-        document
-            .getElementById("earth-button")
-            .addEventListener("click", function() {
-
-                planetName.textContent =
-                    "🌍 Earth";
-
-                planetInfo.textContent =
-                    "Earth is the third planet from the Sun and the only known planet with life.";
-
-            });
-
-
-        /* MARS */
-
-        document
-            .getElementById("mars-button")
-            .addEventListener("click", function() {
-
-                planetName.textContent =
-                    "🔴 Mars";
-
-                planetInfo.textContent =
-                    "Mars is the fourth planet from the Sun and is known as the Red Planet.";
-
-            });
-
-
-        /* JUPITER */
-
-        document
-            .getElementById("jupiter-button")
-            .addEventListener("click", function() {
-
-                planetName.textContent =
-                    "🪐 Jupiter";
-
-                planetInfo.textContent =
-                    "Jupiter is the largest planet in our Solar System.";
-
-            });
-
-
-        /* CLICKING PLANETS */
-
-        document
-            .querySelector(".earth")
-            .addEventListener("click", function() {
-
-                document
-                    .getElementById("earth-button")
-                    .click();
-
-            });
-
-
-        document
-            .querySelector(".mars")
-            .addEventListener("click", function() {
-
-                document
-                    .getElementById("mars-button")
-                    .click();
-
-            });
-
-
-        document
-            .querySelector(".jupiter")
-            .addEventListener("click", function() {
-
-                document
-                    .getElementById("jupiter-button")
-                    .click();
-
-            });
-
-    </script>
-
+document.querySelectorAll("[data-select]").forEach(button => {
+    button.addEventListener("click", () => {
+        showPlanet(button.dataset.select);
+    });
+});
+</script>
 </body>
-
 </html>
